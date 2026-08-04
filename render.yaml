@@ -3,15 +3,9 @@ services:
     name: church-platform-api
     runtime: python
     plan: free
-    region: frankfurt        # change to: oregon / ohio / singapore if closer
-    buildCommand: |
-      cd backend
-      pip install -r requirements.txt
-      python manage.py collectstatic --noinput
-      python manage.py migrate
-    startCommand: |
-      cd backend
-      gunicorn config.wsgi:application
+    region: frankfurt
+    buildCommand: cd backend && pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+    startCommand: cd backend && gunicorn config.wsgi:application
     envVars:
       - key: PYTHON_VERSION
         value: "3.12"
@@ -19,14 +13,13 @@ services:
         value: config.settings.prod
       - key: WEB_CONCURRENCY
         value: "4"
-      # The rest (DB_HOST, DB_PASSWORD, SECRET_KEY, etc.) you add in the dashboard
 
-  - type: static
+  - type: static_site
     name: church-platform-web
-    runtime: static
     plan: free
     buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    publishPath: frontend/dist
     envVars:
       - key: VITE_API_BASE_URL
         value: https://church-platform-api.onrender.com/api/v1
+        
