@@ -14,12 +14,10 @@ services:
       - key: WEB_CONCURRENCY
         value: "4"
 
-  - type: static_site
+  - type: static
     name: church-platform-web
-    plan: free
     buildCommand: cd frontend && npm install && npm run build
     publishPath: frontend/dist
     envVars:
       - key: VITE_API_BASE_URL
         value: https://church-platform-api.onrender.com/api/v1
-        
