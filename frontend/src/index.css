@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  /* Color tokens */
+  --color-ink: #1F2A24;      /* deep forest-charcoal, primary text */
+  --color-paper: #FAF7F1;    /* warm bone-white background */
+  --color-gold: #B8863B;     /* muted candlelight gold, primary accent */
+  --color-sage: #6B7F6B;     /* soft sage, secondary accent */
+  --color-rule: #E4DDD0;     /* hairline dividers */
+
+  /* Type tokens */
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
