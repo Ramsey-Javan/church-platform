@@ -13,11 +13,3 @@ services:
         value: config.settings.prod
       - key: WEB_CONCURRENCY
         value: "4"
-
-  - type: static
-    name: church-platform-web
-    buildCommand: cd frontend && npm install && npm run build
-    publishPath: frontend/dist
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://church-platform-api.onrender.com/api/v1
