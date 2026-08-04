@@ -13,3 +13,4 @@ requests>=2.32
 Pillow>=10.4
 gunicorn>=23.0
 whitenoise>=6.7
+boto3>=1.34
