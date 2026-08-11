@@ -18,6 +18,33 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+
 AWS_ACCESS_KEY_ID = config('R2_ACCESS_KEY_ID', default='')
 AWS_SECRET_ACCESS_KEY = config('R2_SECRET_ACCESS_KEY', default='')
 AWS_STORAGE_BUCKET_NAME = config('R2_BUCKET_NAME', default='')
