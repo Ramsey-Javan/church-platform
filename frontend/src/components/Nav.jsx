@@ -23,7 +23,7 @@ export default function Nav() {
             <img
               src={settings.logo}
               alt={`${settings.name} logo`}
-              className="h-9 w-9 object-contain rounded-full"
+              className="h-20 w-20 object-contain rounded-full"
             />
           )}
           <span className="font-display text-xl" style={{ color: 'var(--color-ink)' }}>

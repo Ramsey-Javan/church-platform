@@ -5,11 +5,16 @@ from rest_framework.views import APIView
 
 from django.conf import settings
 import stripe
+import logging
+import requests
 
 from .models import Donation, Fund
 from .serializers import DonationCheckoutSerializer, FundSerializer
 from .services.mpesa_client import initiate_stk_push
 from .services.stripe_client import create_checkout_session
+
+logger = logging.getLogger(__name__)
+
 
 
 class FundViewSet(viewsets.ReadOnlyModelViewSet):
@@ -18,8 +23,13 @@ class FundViewSet(viewsets.ReadOnlyModelViewSet):
 	serializer_class = FundSerializer
 
 
+
+class FundViewSet(viewsets.ReadOnlyModelViewSet):
+	queryset = Fund.objects.filter(active=True)
+	serializer_class = FundSerializer
+
+
 class DonationCheckoutAPIView(APIView):
-	"""Public donation checkout endpoint for Stripe and M-Pesa."""
 	permission_classes = [AllowAny]
 
 	def post(self, request):
@@ -27,23 +37,52 @@ class DonationCheckoutAPIView(APIView):
 		serializer.is_valid(raise_exception=True)
 		validated_data = serializer.validated_data
 
-		if validated_data['method'] == 'stripe':
-			session_url = create_checkout_session(
+		try:
+			if validated_data['method'] == 'stripe':
+				session_url = create_checkout_session(
+					amount=validated_data['amount'],
+					fund_id=validated_data['fund'].id,
+					donor_email=validated_data.get('email', ''),
+					recurring=validated_data.get('recurring', False),
+					donor_name=validated_data.get('donor_name', ''),
+				)
+				return Response({'payment_url': session_url}, status=status.HTTP_201_CREATED)
+
+			stk_result = initiate_stk_push(
+				phone=validated_data['phone'],
 				amount=validated_data['amount'],
 				fund_id=validated_data['fund'].id,
-				donor_email=validated_data.get('email', ''),
-				recurring=validated_data.get('recurring', False),
-				donor_name=validated_data.get('donor_name', ''),
 			)
-			return Response({'payment_url': session_url}, status=status.HTTP_201_CREATED)
+			return Response(stk_result, status=status.HTTP_201_CREATED)
 
-		stk_result = initiate_stk_push(
-			phone=validated_data['phone'],
-			amount=validated_data['amount'],
-			fund_id=validated_data['fund'].id,
-		)
-		return Response(stk_result, status=status.HTTP_201_CREATED)
+		except ValueError as exc:
+			# Bad input we raised ourselves (e.g. phone format, M-Pesa non-zero response code)
+			logger.warning('Donation checkout rejected: %s', exc)
+			return Response(
+				{'detail': str(exc)},
+				status=status.HTTP_400_BAD_REQUEST,
+			)
 
+		except stripe.error.StripeError as exc:
+			logger.exception('Stripe checkout failed')
+			return Response(
+				{'detail': 'We could not start your Stripe checkout. Please try again in a moment.'},
+				status=status.HTTP_502_BAD_GATEWAY,
+			)
+
+		except requests.exceptions.RequestException as exc:
+			logger.exception('M-Pesa request failed')
+			return Response(
+				{'detail': 'We could not reach M-Pesa right now. Please try again shortly.'},
+				status=status.HTTP_502_BAD_GATEWAY,
+			)
+
+		except Exception:
+			logger.exception('Unexpected error during donation checkout')
+			return Response(
+				{'detail': 'Something went wrong processing your donation. Please try again.'},
+				status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			)
 
 class StripeWebhookAPIView(APIView):
 	permission_classes = [AllowAny]
