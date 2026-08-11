@@ -53,3 +53,7 @@ class ConnectCardSerializer(serializers.ModelSerializer):
 		if not result.get('success'):
 			raise serializers.ValidationError('Turnstile verification failed.')
 		return value
+
+	def create(self, validated_data):
+		validated_data.pop('turnstile_token', None)
+		return ConnectCard.objects.create(**validated_data)
