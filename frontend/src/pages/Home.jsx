@@ -86,9 +86,44 @@ export default function Home() {
           </div>
           <div>
             <h3 className="font-display text-lg mb-1">Contact</h3>
-            <p style={{ opacity: 0.75 }}>
-              {settings?.phone || settings?.email || 'Set this in Church Settings'}
-            </p>
+            {settings?.phone && <p style={{ opacity: 0.75 }}>{settings.phone}</p>}
+            {settings?.email && (
+              <p style={{ opacity: 0.75 }}>
+                <a href={`mailto:${settings.email}`} className="hover:underline">
+                  {settings.email}
+                </a>
+              </p>
+            )}
+            {!settings?.phone && !settings?.email && (
+              <p style={{ opacity: 0.75 }}>Set this in Church Settings</p>
+            )}
+
+            {(settings?.facebook_url || settings?.instagram_url) && (
+              <div className="flex gap-4 mt-3">
+                {settings.facebook_url && (
+                  <a
+                    href={settings.facebook_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium hover:underline"
+                    style={{ color: 'var(--color-sage)' }}
+                  >
+                    Facebook
+                  </a>
+                )}
+                {settings.instagram_url && (
+                  <a
+                    href={settings.instagram_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium hover:underline"
+                    style={{ color: 'var(--color-sage)' }}
+                  >
+                    Instagram
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>
