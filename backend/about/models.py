@@ -24,6 +24,11 @@ class GalleryImage(models.Model):
     caption = models.CharField(max_length=200, blank=True)
     category = models.CharField(max_length=100, blank=True, help_text="e.g. Worship, Youth, Outreach")
     order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_featured = models.BooleanField(
+        default=False,
+        help_text="Featured photos get the large hero/parallax treatment on the About page.",
+    )
 
     class Meta:
         ordering = ['order', '-id']
